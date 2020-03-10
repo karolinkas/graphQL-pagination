@@ -49,16 +49,18 @@ var start = exports.start = function _callee() {
         case 3:
           db = _context3.sent;
           Minerals = db.collection('minerals');
-          typeDefs = ['\n      type Query {\n        minerals: [Mineral]\n      }\n\n      type Mineral {\n        _id: String\n        name: String\n        content: String\n      }\n\n      type Mutation {\n        createMineral(name: String, content: String): Mineral\n      }\n\n      schema {\n        query: Query\n        mutation: Mutation\n      }\n    '];
+          typeDefs = ['\n      type Query {\n        minerals(limit: Int, offset: Int): [Mineral]\n      }\n\n      type Mineral {\n        _id: String\n        name: String\n        content: String\n      }\n\n      type Mutation {\n        createMineral(name: String, content: String): Mineral\n      }\n\n      schema {\n        query: Query\n        mutation: Mutation\n      }\n    '];
           resolvers = {
             Query: {
-              minerals: function minerals() {
+              minerals: function minerals(root, _ref) {
+                var limit = _ref.limit,
+                    offset = _ref.offset;
                 return regeneratorRuntime.async(function minerals$(_context) {
                   while (1) {
                     switch (_context.prev = _context.next) {
                       case 0:
                         _context.next = 2;
-                        return regeneratorRuntime.awrap(Minerals.find({}).toArray());
+                        return regeneratorRuntime.awrap(Minerals.find({}).limit(parseInt(limit)).skip(parseInt(offset)).toArray());
 
                       case 2:
                         _context.t0 = _index.prepare;
@@ -108,7 +110,7 @@ var start = exports.start = function _callee() {
           }));
 
           app.listen(PORT, function () {
-            console.log('Visit ' + URL + ':' + PORT + homePath + ' to make minerals and explore them');
+            console.log('Visit ' + URL + ':' + PORT + homePath + ' to make minerals and explore them.');
           });
 
           _context3.next = 16;

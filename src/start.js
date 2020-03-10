@@ -26,7 +26,7 @@ export const start = async () => {
 
     const typeDefs = [`
       type Query {
-        minerals: [Mineral]
+        minerals(limit: Int, offset: Int): [Mineral]
       }
 
       type Mineral {
@@ -47,8 +47,10 @@ export const start = async () => {
 
     const resolvers = {
       Query: {
-        minerals: async () => {
+        minerals: async (root, {limit, offset}) => {
           return (await Minerals.find({})
+              .limit(parseInt(limit))
+              .skip(parseInt(offset))
              .toArray()).map(prepare)
         },
       },
