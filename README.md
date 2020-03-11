@@ -69,7 +69,7 @@ You'll see that this query returns the list of all the minerals that you ever cr
 That's where pagination comes into play.
 
 
-An example for this would be to limit the query's return value to 4 minerals instead of showing all 12 at once. If we are showing only the minerals in the second row there is an offset of 4 minerals.
+An example for this would be to limit the query's return value to 4 minerals instead of showing all 12 at once. If we are showing only the minerals in the second row there is an offset of 4 minerals. We could leave the decision how many results should be shown at a time to the user, by presenting some UI that lets the user pick from some options that then set the `limit` parameter.
 
 
 ![](images/limit.png?raw=true)
@@ -120,6 +120,31 @@ Now when trying out the new pagination functionality we set the new parameters i
 		    content
 	    }
     }
+
+On the other hand the limit/offset pagination comes with a couple of disadvantages, i.e. if one mineral gets removed the whole mineral collection gets shifted forward, which might change the query's response in unexpected ways. That's where cursor-based pagination might bring more specific results. The idea of cursor pased pagination is that we create references to each object, in this case mineral, where the user might have left off while exploring all minerals. From this reference point we can then fetch more data.
+
+![](images/cursor.png?raw=true)
+
+Let's implement this with GraphQL, we'll still need the limit of results to show but will know pass in a cursor, which to simplify things for the sake of this tutorial will be the index of the mineral that's currenlty being looked at by the user. This is the type:
+
+    type Query {
+    	minerals(limit: Int, index: Int): [Mineral]
+    }
+
+And the query will now be:
+
+    Query: {
+        minerals: async (root, {limit, index) => {
+            return (await Minerals.find({})
+                .limit(parseInt(limit))
+                .skip(parseInt(index))
+                .toArray()).map(prepare)
+        },
+    },
+
+
+### Next Steps
+This implementation could be improved in the next steps, i.e. we could use the id of the mineral to access the right mineral instead of the index to make sure the selection of one mineral is more specific. Also we could add a `pageInfo` field to each mineral to store information about the `startCursor` and `endCursor` assuming the limit hasn't changed and the `nextPage` boolean that will allow you to be aware if there's more results to follow.
 
 
 
